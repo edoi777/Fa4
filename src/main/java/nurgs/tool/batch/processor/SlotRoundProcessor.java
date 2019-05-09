@@ -12,9 +12,7 @@ public class SlotRoundProcessor implements ItemProcessor<SlotRound, List<String>
 
     @Override
     public List<String> process(SlotRound item) throws Exception {
-
         SlotRoundTransformer transformer = provider.getSlotRoundTransformer(item.getGameCode());
-        
         return transformer.transform(item);
     }
 
