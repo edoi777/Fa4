@@ -203,23 +203,28 @@ public class BatchConfig extends DefaultBatchConfigurer {
     }
     
     
-    
     @Bean("cassandraWriter")
     @StepScope
     public ItemWriter<List<String>> cassandraWriter(Session session) {
         return items -> {
             if(writeToCassandra) {
                 for(List<String> strItems : items) {
-                    for(String item : strItems) {
-                        try {
-                            session.execute(item);
-                        }catch(Exception e) {
-                            LOGGER.error("Failed to insert : {}", item);
-                        }
-                    }
+                    write(strItems, session);
                 }
             }
         };
+    }
+    
+    private void write(List<String> strItems, Session session) {
+        for(String item : strItems) {
+            try {
+                if(item.startsWith("INSERT")) {
+                    session.execute(item);   
+                }
+            }catch(Exception e) {
+                LOGGER.error("Failed to insert : {}", item);
+            }
+        }
     }
 
 }

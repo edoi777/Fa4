@@ -37,7 +37,7 @@ public class GameConfig {
         {
             @Override
             protected InputStream getConfigAsInputStream(String rtp, String config, String gameCode) {
-                return getClass().getResourceAsStream("classpath:/games/standard" + "/" + gameCode + "/" + rtp + "/" + config);
+                return GameConfigCreator.class.getResourceAsStream("/games/standard" + "/" + gameCode + "/" + rtp + "/" + config);
             }
         };
     }

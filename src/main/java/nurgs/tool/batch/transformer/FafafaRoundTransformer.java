@@ -4,6 +4,7 @@
 package nurgs.tool.batch.transformer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -43,7 +44,7 @@ public class FafafaRoundTransformer extends AbstractSlotRoundTransformer {
     }
 
     @Override
-    protected JsonArray buildBonusData(SlotRound round) {
+    protected JsonArray buildBonusData(List<String> list, SlotRound round) {
         return new JsonArray();
     }
 

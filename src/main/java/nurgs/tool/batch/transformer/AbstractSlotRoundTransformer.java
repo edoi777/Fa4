@@ -5,6 +5,7 @@ package nurgs.tool.batch.transformer;
 
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
 
     @Override
     public List<String> transform(SlotRound item) {
+        List<String> list = new ArrayList<>();
         Insert insert = QueryBuilder.insertInto("userspinhistory");
         insert.value("userid", item.getPlayerId());
         insert.value("createdate", item.getStart().toInstant(ZoneOffset.UTC).toEpochMilli());
@@ -49,7 +51,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         if (item.getSlotFreeRound() != null) {
             insert.value("freeroundproviderref", item.getSlotFreeRound().getProvider());
         }
-        insert.value("gamehistory", buildGameHistory(item));
+        insert.value("gamehistory", buildGameHistory(list, item));
         insert.value("gameinfo", item.getGameCode() + ";V:1");
         insert.value("jpcontrib", 0.0);
         insert.value("merchantcode", item.getMerchantCode());
@@ -62,10 +64,11 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         insert.value("totalwon", item.getTotalWin());
         insert.value("type", item.getType());
         insert.value("usertype", item.getUserType());
-        return Arrays.asList(insert.toString());
+        list.add(insert.toString());
+        return list;
     }
 
-    private String buildGameHistory(SlotRound item) {
+    private String buildGameHistory(List<String> list, SlotRound item) {
         JsonObject json = new JsonObject();
         json.put("causality", item.getBaseSpinResult().getCausality());
         json.put("round_id", item.getRoundId());
@@ -76,7 +79,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         json.put("line_wins", buildLineWins(item.getBaseSpinResult().getReelWins()));
         json.put("per_line_bets", buildPerLineBets(item));
         json.put("scatters", buildScatterWins(item.getBaseSpinResult().getScatterWins()));
-        json.put("bonuses", buildBonusData(item));
+        json.put("bonuses", buildBonusData(list, item));
         json.put("is_final_pick", false);
         json.put("is_separate", false);
         json.putNull("tx_id");
@@ -132,10 +135,11 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
     }
 
     /**
+     * @param list 
      * @param round
      * @return
      */
-    protected abstract JsonArray buildBonusData(SlotRound round);
+    protected abstract JsonArray buildBonusData(List<String> list, SlotRound round);
 
     /**
      * @param round

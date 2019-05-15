@@ -57,11 +57,11 @@ public class ReindeerWildRoundTransformer extends AbstractSlotRoundTransformer {
     }
 
     @Override
-    protected JsonArray buildBonusData(SlotRound round) {
+    protected JsonArray buildBonusData(List<String> list, SlotRound round) {
         JsonArray bonusDataArray = new JsonArray();
         SlotFreeSpinFeature feature = getFreeSpins(round.getFeatures());
         if (feature != null) {
-            buildFreeSpinData(bonusDataArray, feature, round);
+            buildFreeSpinData(list, bonusDataArray, feature, round);
         }
 
         return bonusDataArray;
@@ -83,7 +83,7 @@ public class ReindeerWildRoundTransformer extends AbstractSlotRoundTransformer {
         return null;
     }
 
-    private void buildFreeSpinData(JsonArray bonusDataArray, SlotFreeSpinFeature feature, SlotRound round) {
+    private void buildFreeSpinData(List<String> list, JsonArray bonusDataArray, SlotFreeSpinFeature feature, SlotRound round) {
         boolean hanPending = true;
         while (hanPending) {
             try {
@@ -107,6 +107,7 @@ public class ReindeerWildRoundTransformer extends AbstractSlotRoundTransformer {
                         round.getUserType(),
                         round.getType());
                 kafkaSender.send(payload);
+                list.add(payload);
             } catch (ValidationException ve) {
                 hanPending = false;
             } catch (Exception e) {
