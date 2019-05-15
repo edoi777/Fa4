@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nurgs.tool.batch.processor;
+package nurgs.tool.batch.transformer;
 
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
@@ -17,12 +17,14 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import nurgs.domain.model.game.slot.SlotPaylineData;
 import nurgs.domain.model.game.slot.SlotRound;
+import nurgs.domain.model.game.slot.SlotScatterWin;
 import nurgs.domain.model.game.slot.spinner.SpinnedReel;
 
 /**
  * @author pau.luna
  */
 public abstract class AbstractSlotRoundTransformer implements SlotRoundTransformer {
+    private static final String SYMBOL = "symbol";
     private Set<String> supportedGames = new HashSet<>();
 
     protected AbstractSlotRoundTransformer(String... supportedGameCodes) {
@@ -60,7 +62,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         insert.value("totalwon", item.getTotalWin());
         insert.value("type", item.getType());
         insert.value("usertype", item.getUserType());
-        return Arrays.asList(insert.getQueryString());
+        return Arrays.asList(insert.toString());
     }
 
     private String buildGameHistory(SlotRound item) {
@@ -73,7 +75,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         json.put("lines", 1);
         json.put("line_wins", buildLineWins(item.getBaseSpinResult().getReelWins()));
         json.put("per_line_bets", buildPerLineBets(item));
-        json.put("scatters", buildScatterWins(item));
+        json.put("scatters", buildScatterWins(item.getBaseSpinResult().getScatterWins()));
         json.put("bonuses", buildBonusData(item));
         json.put("is_final_pick", false);
         json.put("is_separate", false);
@@ -83,7 +85,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         return json.encode();
     }
 
-    private JsonArray buildReels(List<SpinnedReel> reels) {
+    protected JsonArray buildReels(List<SpinnedReel> reels) {
         JsonArray array = new JsonArray();
         int position = 1;
         for (SpinnedReel sr : reels) {
@@ -95,7 +97,7 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
             for (String sym : sr.getSymbols()) {
                 JsonObject symbol = new JsonObject();
                 symbol.put("index", index);
-                symbol.put("symbol", getSymbol(sym));
+                symbol.put(SYMBOL, getSymbol(sym));
                 symbol.put("reel_position", 0);
                 symbols.add(symbol);
                 index++;
@@ -108,12 +110,12 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         return array;
     }
 
-    private JsonArray buildLineWins(List<SlotPaylineData> list) {
+    protected JsonArray buildLineWins(List<SlotPaylineData> list) {
         JsonArray array = new JsonArray();
         for (SlotPaylineData spld : list) {
             JsonObject lineWin = new JsonObject();
             lineWin.put("kind", spld.getOfKind());
-            lineWin.put("symbol", getWinningSymbol(spld.getSymbol()));
+            lineWin.put(SYMBOL, getWinningSymbol(spld.getSymbol()));
             lineWin.put("prize", spld.getPrize());
             lineWin.put("line", spld.getLineNumber());
             lineWin.put("wild_multiplier", spld.getWildMultiplier());
@@ -121,7 +123,6 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
         return array;
     }
 
-    
     protected String getSymbol(String symbol) {
         return symbol;
     }
@@ -129,26 +130,34 @@ public abstract class AbstractSlotRoundTransformer implements SlotRoundTransform
     protected String getWinningSymbol(String winningSymbol) {
         return winningSymbol;
     }
-    
+
     /**
-     * 
      * @param round
      * @return
      */
     protected abstract JsonArray buildBonusData(SlotRound round);
-    
+
     /**
-     * 
      * @param round
      * @return
      */
     protected abstract JsonObject buildPerLineBets(SlotRound round);
-    
+
     /**
-     * 
-     * @param round
+     * @param slotScatterWin
      * @return
      */
-    protected abstract JsonArray buildScatterWins(SlotRound round);
-    
+    protected JsonArray buildScatterWins(SlotScatterWin win) {
+        JsonObject scatterWinJson = new JsonObject();
+        if(win == null) {
+            return new JsonArray();
+        }
+        scatterWinJson.put("kind", win.getOfKind());
+        scatterWinJson.put(SYMBOL, win.getSymbol());
+        scatterWinJson.put("prize", win.getPrize());
+        scatterWinJson.put("line", 0);
+        scatterWinJson.put("wild_multiplier", 1);
+        return new JsonArray().add(scatterWinJson);
+    }
+
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nurgs.tool.batch.processor;
+package nurgs.tool.batch.transformer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import nurgs.domain.model.game.slot.SlotRound;
+import nurgs.domain.model.game.slot.SlotScatterWin;
 
 /**
  * @author pau.luna
@@ -52,7 +53,7 @@ public class FafafaRoundTransformer extends AbstractSlotRoundTransformer {
     }
 
     @Override
-    protected JsonArray buildScatterWins(SlotRound round) {
+    protected JsonArray buildScatterWins(SlotScatterWin win) {
         return new JsonArray();
     }
 }

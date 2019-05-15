@@ -3,10 +3,13 @@
  */
 package nurgs.tool.batch.reader;
 
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.item.ExecutionContext;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+import java.time.Instant;
+
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.builder.MongoItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
@@ -17,22 +20,19 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import nurgs.domain.model.game.slot.SlotRound;
 
-import static org.springframework.data.mongodb.core.query.Criteria.*;
-
-import java.time.Instant;
-
 /**
  * @author pau.luna
  */
-@Configuration
+//@Configuration
 public class ItemReaderBeanConfig {
 
     private int itemsPerProcess = 50;
 
+    @Value("#{stepExecutionContext[page]}")
+    private int page;
+    
     @Bean
-    public MongoItemReaderBuilder<SlotRound> mongoItemReaderBuilder(ExecutionContext ec) {
-
-        int page = ec.getInt("page");
+    public MongoItemReaderBuilder<SlotRound> mongoItemReaderBuilder() {
 
         Pageable pageable = PageRequest.of(page, itemsPerProcess, new Sort(Direction.ASC, "start"));
         //@formatter:off

@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://10.201.11.66/Rgs
+    cassandra:
+      keyspace-name: igrgs
+      contact-points: 10.201.11.57
+  kafka:
+    bootstrap-servers: 10.201.11.73:9092

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nurgs.tool.batch.processor;
+package nurgs.tool.batch.transformer;
 
 import java.util.HashSet;
 import java.util.Set;
